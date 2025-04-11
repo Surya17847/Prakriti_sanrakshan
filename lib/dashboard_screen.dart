@@ -26,32 +26,110 @@ class DashboardScreen extends StatelessWidget {
               padding: EdgeInsets.all(16.0),
               child: Text("News", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             ),
-            Container(
-              height: 150, // Fixed height for horizontal scrolling
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: [
-                  // NewsCard(image: 'assets/news1.jpg', title: "Deforestation Impact"),
-                  // NewsCard(image: 'assets/news2.jpg', title: "Green Energy Benefits"),
-                ],
-              ),
-            ),
+          Container(
+  height: 150, // Fixed height for horizontal scrolling
+  child: ListView(
+    scrollDirection: Axis.horizontal,
+    children: [
+      Card(
+        margin: EdgeInsets.symmetric(horizontal: 8),
+        child: Container(
+          width: 200,
+          padding: EdgeInsets.all(12),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text("Deforestation Impact", style: TextStyle(fontWeight: FontWeight.bold)),
+              SizedBox(height: 8),
+              Text("Learn how tree loss affects biodiversity."),
+            ],
+          ),
+        ),
+      ),
+      Card(
+        margin: EdgeInsets.symmetric(horizontal: 8),
+        child: Container(
+          width: 200,
+          padding: EdgeInsets.all(12),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text("Green Energy Benefits", style: TextStyle(fontWeight: FontWeight.bold)),
+              SizedBox(height: 8),
+              Text("Explore solar, wind and other clean energy."),
+            ],
+          ),
+        ),
+      ),
+       Card(
+        margin: EdgeInsets.symmetric(horizontal: 8),
+        child: Container(
+          width: 200,
+          padding: EdgeInsets.all(12),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text("Green Energy Benefits", style: TextStyle(fontWeight: FontWeight.bold)),
+              SizedBox(height: 8),
+              Text("Explore solar, wind and other clean energy."),
+            ],
+          ),
+        ),
+      ),
+       Card(
+        margin: EdgeInsets.symmetric(horizontal: 8),
+        child: Container(
+          width: 200,
+          padding: EdgeInsets.all(12),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text("Green Energy Benefits", style: TextStyle(fontWeight: FontWeight.bold)),
+              SizedBox(height: 8),
+              Text("Explore solar, wind and other clean energy."),
+            ],
+          ),
+        ),
+      ),
+      // Add more cards here
+    ],
+  ),
+),
+
 
             // Personal Contribution Section
             Padding(
               padding: EdgeInsets.all(16.0),
               child: Text("Personal Contribution", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             ),
-            Container(
-              height: 120, // Fixed height for horizontal cards
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: [
-                  // PersonalContributionCard(title: "Trees Planted", value: "10"),
-                  // PersonalContributionCard(title: "Carbon Footprint", value: "Check"),
-                ],
-              ),
-            ),
+          Container(
+  height: 120,
+  child: ListView(
+    scrollDirection: Axis.horizontal,
+    padding: EdgeInsets.symmetric(horizontal: 12),
+    children: [
+      _buildContributionCard(
+        icon: Icons.park,
+        title: "Trees Planted",
+        value: "10",
+        color: Colors.green.shade100,
+      ),
+      _buildContributionCard(
+        icon: Icons.eco,
+        title: "Carbon Footprint",
+        value: "Check",
+        color: Colors.teal.shade100,
+      ),
+      _buildContributionCard(
+        icon: Icons.report_problem,
+        title: "Complaint Raised",
+        value: "3",
+        color: Colors.orange.shade100,
+      ),
+    ],
+  ),
+),
+
 
             // Map Section
             Padding(
@@ -116,4 +194,32 @@ class DashboardScreen extends StatelessWidget {
       ),
     );
   }
+  Widget _buildContributionCard({
+  required IconData icon,
+  required String title,
+  required String value,
+  required Color color,
+}) {
+  return Card(
+    color: color,
+    margin: EdgeInsets.only(right: 12),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    child: Container(
+      width: 180,
+      padding: EdgeInsets.all(16),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 28, color: Colors.black87),
+          SizedBox(height: 8),
+          Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          SizedBox(height: 4),
+          Text(value, style: TextStyle(fontSize: 14, color: Colors.black54)),
+        ],
+      ),
+    ),
+  );
+}
+
 }

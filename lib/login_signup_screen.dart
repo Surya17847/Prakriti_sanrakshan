@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prakriti_svanrakshan/dashboard_screen.dart';
 
 class LoginSignUpScreen extends StatefulWidget {
   @override
@@ -53,21 +54,24 @@ class _LoginSignUpScreenState extends State<LoginSignUpScreen> {
                   ),
                   SizedBox(height: 20),
                   ElevatedButton(
-                    onPressed: () {
-                      // Handle login/signup logic
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 40),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                    child: Text(
-                      isLogin ? "Login" : "Sign Up",
-                      style: TextStyle(fontSize: 16, color: Colors.white),
-                    ),
-                  ),
+  onPressed: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => DashboardScreen()),
+    );
+  },
+  style: ElevatedButton.styleFrom(
+    backgroundColor: Colors.green,
+    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 40),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(10),
+    ),
+  ),
+  child: Text(
+    isLogin ? "Login" : "Sign Up",
+    style: TextStyle(fontSize: 16, color: Colors.white),
+  ),
+),
                   TextButton(
                     onPressed: () => setState(() => isLogin = !isLogin),
                     child: Text(

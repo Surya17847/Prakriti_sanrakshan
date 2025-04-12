@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prakriti_svanrakshan/AQIMapScreen.dart';
 // import 'news_card.dart';
 // import 'personal_contribution_card.dart';
 // import 'image_analysis_screen.dart';
@@ -136,11 +137,30 @@ class DashboardScreen extends StatelessWidget {
               padding: EdgeInsets.all(16.0),
               child: Text("Live AQI Map", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             ),
-            Container(
-              height: 200, // Placeholder for map
-              color: Colors.grey[300],
-              child: Center(child: Text("Live AQI Map Here")),
-            ),
+            GestureDetector(
+  onTap: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => AQIMapScreen()),
+    );
+  },
+  child: Container(
+    height: 200,
+    color: Colors.grey[300],
+    child: Center(
+      child: Text(
+        "Live AQI Map Here",
+        style: TextStyle(
+          color: Colors.blueAccent,
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+          decoration: TextDecoration.underline,
+        ),
+      ),
+    ),
+  ),
+),
+
 
             // Image Analysis Section
             Padding(

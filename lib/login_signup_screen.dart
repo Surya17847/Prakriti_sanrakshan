@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:prakriti_svanrakshan/dashboard_screen.dart';
+import 'package:prakriti_svanrakshan/MainScreen.dart';
 
 class LoginSignUpScreen extends StatefulWidget {
   @override
@@ -57,7 +57,7 @@ class _LoginSignUpScreenState extends State<LoginSignUpScreen> {
   onPressed: () {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => DashboardScreen()),
+      MaterialPageRoute(builder: (context) => MainScreen()),
     );
   },
   style: ElevatedButton.styleFrom(

@@ -5,7 +5,7 @@ buildscript {
     }
     dependencies {
         // Update Gradle Plugin version to match your Flutter setup
-        classpath 'com.android.tools.build:gradle:7.4.0' // Adjust this based on your setup
+        classpath 'com.android.tools.build:gradle:7.4.0'
         // Add other classpaths if required by your plugins
     }
 }
@@ -28,3 +28,4 @@ subprojects {
 tasks.register("clean", Delete) {
     delete rootProject.buildDir
 }
+

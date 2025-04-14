@@ -1,0 +1,2 @@
+C:/Users/Suryanarayan/StudioProjects/prakriti_sanrakshan/Prakriti_sanrakshan/android/app/.cxx/Debug/342f6u14/armeabi-v7a/CMakeFiles/edit_cache.dir
+C:/Users/Suryanarayan/StudioProjects/prakriti_sanrakshan/Prakriti_sanrakshan/android/app/.cxx/Debug/342f6u14/armeabi-v7a/CMakeFiles/rebuild_cache.dir

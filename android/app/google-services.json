@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "1085200151426",
+    "project_id": "prakritisvanrakshan",
+    "storage_bucket": "prakritisvanrakshan.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1085200151426:android:598fe2775ee77cd0a2959b",
+        "android_client_info": {
+          "package_name": "com.example.prakriti_svanrakshan"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1085200151426-45smgoq4r0nhb8vh46sklk7r57f9t449.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.prakriti_svanrakshan",
+            "certificate_hash": "bed3d0db311be068af1c93bf28483b6a8bb746f9"
+          }
+        },
+        {
+          "client_id": "1085200151426-r6nvglkphhemschbk0fuj79cav5g0q1m.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDSrJ7frUG4a23p8YPCyB212O60xRsbftM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1085200151426-r6nvglkphhemschbk0fuj79cav5g0q1m.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1085200151426-1asp54o6g0u6al1ceq2rtcqttei9eq15.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.prakritiSvanrakshan"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

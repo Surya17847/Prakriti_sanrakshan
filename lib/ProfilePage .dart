@@ -1,6 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
+  @override
+  _ProfilePageState createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  File? _profileImage;
+
+  final ImagePicker _picker = ImagePicker();
+
+  Future<void> _pickImage(ImageSource source) async {
+    final pickedFile = await _picker.pickImage(source: source);
+    if (pickedFile != null) {
+      setState(() {
+        _profileImage = File(pickedFile.path);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,10 +47,15 @@ class ProfilePage extends StatelessWidget {
 
                 // Profile Picture
                 Center(
-                  child: CircleAvatar(
-                    radius: 60,
-                    backgroundImage: AssetImage('assets/images/profile_image.jpg'),
-                    backgroundColor: Colors.white,
+                  child: GestureDetector(
+                    onTap: () => _showImageSourceDialog(context),
+                    child: CircleAvatar(
+                      radius: 60,
+                      backgroundImage: _profileImage == null
+                          ? AssetImage('assets/images/profile_image.jpg')
+                          : FileImage(_profileImage!) as ImageProvider,
+                      backgroundColor: Colors.white,
+                    ),
                   ),
                 ),
                 SizedBox(height: 10),
@@ -46,7 +71,6 @@ class ProfilePage extends StatelessWidget {
                   ),
                 ),
                 
-
                 // Email
                 Text(
                   "gaurav.gupta@gmail.com",
@@ -83,7 +107,7 @@ class ProfilePage extends StatelessWidget {
                       Divider(),
                       _buildDetailRow(Icons.eco, "CO₂ Saved", "18 kg"),
                       Divider(),
-                      _buildDetailRow(Icons.health_and_safety, "Health Hours", "5 hrs"),
+                      _buildDetailRow(Icons.health_and_safety, "Health", "Healthy"),
                     ],
                   ),
                 ),
@@ -111,6 +135,39 @@ class ProfilePage extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  // Helper method to show the image source dialog
+  void _showImageSourceDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("Choose a photo"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: Icon(Icons.camera),
+                title: Text("Take a photo"),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickImage(ImageSource.camera);
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.photo_library),
+                title: Text("Choose from gallery"),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickImage(ImageSource.gallery);
+                },
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 

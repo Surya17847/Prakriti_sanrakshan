@@ -17,6 +17,7 @@ class _AQIMapScreenState extends State<AQIMapScreen> {
   List<Marker> markers = [];
   Map<String, dynamic> selectedComponents = {};
   String selectedCity = '';
+  TextEditingController searchController = TextEditingController();
 
   final List<Map<String, dynamic>> sampleLocations = [
     {'city': 'Mumbai', 'lat': 19.0760, 'lon': 72.8777},
@@ -43,8 +44,7 @@ class _AQIMapScreenState extends State<AQIMapScreen> {
             point: LatLng(location['lat'], location['lon']),
             width: 40,
             height: 40,
-            child: Icon(Icons.location_on,
-                size: 35, color: getAQIColor(aqi)),
+            child: Icon(Icons.location_on, size: 35, color: getAQIColor(aqi)),
           ),
         );
       }
@@ -56,9 +56,8 @@ class _AQIMapScreenState extends State<AQIMapScreen> {
 
   Future<Map<String, dynamic>?> fetchAQIData(double lat, double lon) async {
     final url =
-        'https://api.openweathermap.org/data/2.5/air_pollution?lat=$lat&lon=$lon&appid=YOUR_API_KEY';
+        'https://api.openweathermap.org/data/2.5/air_pollution?lat=$lat&lon=$lon&appid=799bebff1ae2f74cda8f9319be841622';
     final response = await http.get(Uri.parse(url));
-
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       return data['list'][0];
@@ -76,7 +75,6 @@ class _AQIMapScreenState extends State<AQIMapScreen> {
         selectedComponents = aqiData['components'];
         selectedCity = city;
       });
-      print("Updated AQI components for $city: ${aqiData['components']}");
     }
   }
 
@@ -96,7 +94,7 @@ class _AQIMapScreenState extends State<AQIMapScreen> {
         children: [
           FlutterMap(
             options: MapOptions(
-              initialCenter: LatLng(21.1458, 79.0882),
+              initialCenter: LatLng(21.1458, 79.0882), // Central India
               initialZoom: 5,
             ),
             children: [
@@ -127,46 +125,64 @@ class _AQIMapScreenState extends State<AQIMapScreen> {
               ),
             ],
           ),
-          // Search Bar at Top
+          // Search Bar
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.all(12.0),
               child: Material(
-                elevation: 3,
-                borderRadius: BorderRadius.circular(8),
+                elevation: 4,
+                borderRadius: BorderRadius.circular(10),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: Autocomplete<String>(
-                    optionsBuilder: (TextEditingValue textEditingValue) {
-                      if (textEditingValue.text.isEmpty) return const Iterable<String>.empty();
-                      return sampleLocations
-                          .map((e) => e['city'].toString())
-                          .where((option) => option
-                              .toLowerCase()
-                              .contains(textEditingValue.text.toLowerCase()));
-                    },
-                    onSelected: (String city) => onCitySelected(city),
-                    fieldViewBuilder: (context, controller, focusNode, _) {
-                      return TextField(
-                        controller: controller,
-                        focusNode: focusNode,
-                        decoration: const InputDecoration(
-                          hintText: 'Search city...',
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.all(10),
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Autocomplete<String>(
+                          optionsBuilder: (TextEditingValue textEditingValue) {
+                            if (textEditingValue.text.isEmpty) {
+                              return const Iterable<String>.empty();
+                            }
+                            return sampleLocations
+                                .map((e) => e['city'].toString())
+                                .where((option) => option
+                                    .toLowerCase()
+                                    .contains(textEditingValue.text.toLowerCase()));
+                          },
+                          onSelected: (String city) => onCitySelected(city),
+                          fieldViewBuilder: (context, controller, focusNode, _) {
+                            searchController = controller;
+                            return TextField(
+                              controller: controller,
+                              focusNode: focusNode,
+                              decoration: const InputDecoration(
+                                hintText: 'Search city...',
+                                border: InputBorder.none,
+                                contentPadding: EdgeInsets.all(10),
+                              ),
+                            );
+                          },
                         ),
-                      );
-                    },
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.search),
+                        onPressed: () {
+                          String city = searchController.text.trim();
+                          if (city.isNotEmpty) {
+                            onCitySelected(city);
+                          }
+                        },
+                      ),
+                    ],
                   ),
                 ),
               ),
             ),
           ),
-          // Draggable Bottom Sheet (Analysis Card)
+          // Bottom Card
           DraggableScrollableSheet(
             initialChildSize: 0.12,
             minChildSize: 0.12,
-            maxChildSize: 0.45,
+            maxChildSize: 0.5,
             builder: (BuildContext context, ScrollController scrollController) {
               return Container(
                 decoration: const BoxDecoration(
@@ -176,6 +192,7 @@ class _AQIMapScreenState extends State<AQIMapScreen> {
                 ),
                 child: ListView(
                   controller: scrollController,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
                   children: [
                     Center(
                       child: Container(
@@ -191,22 +208,44 @@ class _AQIMapScreenState extends State<AQIMapScreen> {
                     if (selectedComponents.isEmpty)
                       const Padding(
                         padding: EdgeInsets.all(12.0),
-                        child: Center(child: Text("Select a city to view AQI details")),
+                        child: Center(
+                          child: Text(
+                            "Select a city to view AQI details",
+                            style: TextStyle(fontSize: 16),
+                          ),
+                        ),
                       )
                     else ...[
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8.0),
-                        child: Text(
-                          'Air Quality in $selectedCity',
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
-                        ),
+                      Text(
+                        'Air Quality in $selectedCity',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 18),
                       ),
+                      const SizedBox(height: 10),
                       SizedBox(
-                        height: 180,
+                        height: 200,
                         child: AQIPieChart(components: selectedComponents),
                       ),
+                      const SizedBox(height: 10),
+                      Column(
+                        children: selectedComponents.entries.map((entry) {
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 2.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(entry.key.toUpperCase(),
+                                    style: const TextStyle(fontSize: 14)),
+                                Text('${entry.value.toStringAsFixed(1)} µg/m³',
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.w600)),
+                              ],
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                      const SizedBox(height: 10),
                     ],
                   ],
                 ),

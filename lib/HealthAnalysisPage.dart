@@ -15,136 +15,251 @@ class _HealthAnalysisPageState extends State<HealthAnalysisPage> {
   double _idealWeight = 0.0;
   List<FlSpot> _bmiHistory = [];
 
-  // Function to calculate BMI
+  String _activityLevel = "Moderate";
+  String _dietType = "Balanced";
+  double _waterIntake = 2.0;
+  double _sleepHours = 7.0;
+
   void _calculateHealthMetrics() {
     double weight = double.tryParse(_weightController.text) ?? 0.0;
     double height = double.tryParse(_heightController.text) ?? 0.0;
 
     if (weight > 0 && height > 0) {
       setState(() {
-        // BMI formula
         _bmi = weight / (height * height);
-        // Ideal weight formula (BMI range of 18.5 to 24.9)
         _idealWeight = 22.0 * (height * height);
-        // Store BMI history for chart
         _bmiHistory.add(FlSpot(_bmiHistory.length.toDouble(), _bmi));
       });
     }
   }
 
-  // Function to generate BMI progress chart
   LineChartData _generateChartData() {
     return LineChartData(
       gridData: FlGridData(show: true),
-      titlesData: FlTitlesData(show: true),
-      borderData: FlBorderData(show: true, border: Border.all(color: Colors.black26, width: 1)),
+      titlesData: FlTitlesData(
+        bottomTitles: AxisTitles(
+          sideTitles: SideTitles(
+            showTitles: true,
+            interval: 1,
+            reservedSize: 32,
+            getTitlesWidget: (value, meta) {
+              return SideTitleWidget(
+                axisSide: meta.axisSide,
+                child: Text("Day ${value.toInt()}",
+                    style: TextStyle(fontSize: 12)),
+              );
+            },
+          ),
+          axisNameWidget: Padding(
+            padding: const EdgeInsets.only(top: 12),
+            child: Text("Check-in", style: TextStyle(fontWeight: FontWeight.bold)),
+          ),
+        ),
+        leftTitles: AxisTitles(
+          sideTitles: SideTitles(
+            showTitles: true,
+            interval: 2,
+            reservedSize: 40,
+            getTitlesWidget: (value, meta) {
+              return SideTitleWidget(
+                axisSide: meta.axisSide,
+                child: Text(value.toStringAsFixed(1),
+                    style: TextStyle(fontSize: 12)),
+              );
+            },
+          ),
+          axisNameWidget: Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: Text("BMI", style: TextStyle(fontWeight: FontWeight.bold)),
+          ),
+        ),
+        rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+        topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+      ),
+      borderData: FlBorderData(
+        show: true,
+        border: Border.all(color: Colors.grey.shade300),
+      ),
       lineBarsData: [
         LineChartBarData(
           spots: _bmiHistory,
           isCurved: true,
-          color: Colors.blue,
-          dotData: FlDotData(show: false),
-          belowBarData: BarAreaData(show: false),
+          color: Colors.teal,
+          dotData: FlDotData(show: true),
+          belowBarData: BarAreaData(
+            show: true,
+            color: Colors.teal.shade100.withOpacity(0.4),
+          ),
         ),
       ],
+      minX: 0,
+      maxX: _bmiHistory.length > 0 ? _bmiHistory.length.toDouble() - 1 : 1,
     );
+  }
+
+  String _getLifestyleTip() {
+    if (_sleepHours < 6) {
+      return "Try to get more restful sleep. Aim for 7–9 hours for better recovery. 😴";
+    } else if (_waterIntake < 1.5) {
+      return "Hydration is key! Drink more water throughout the day. 💧";
+    } else if (_activityLevel == "Sedentary") {
+      return "Incorporate light activity into your day — even short walks help! 🏃‍♂️";
+    } else if (_dietType == "Low Carb") {
+      return "Make sure you're getting enough fiber and nutrients with your diet. 🌾";
+    } else {
+      return "You're on a solid path! Stay mindful and consistent. 💪";
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Health Analysis"),
-        backgroundColor: Colors.green.shade400,
+        title: Text("🩺 Health Check-In"),
+        backgroundColor: Colors.teal.shade400,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: ListView(
           children: [
-            // Health Info Input Card
             Card(
               elevation: 4,
-              color: Colors.green.shade100,
+              color: Colors.teal.shade50,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               child: Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: Column(
                   children: [
-                    Text("Enter Your Health Information", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                    Text("Let's get to know you better",
+                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                    SizedBox(height: 16),
+                    _buildInputField("🧍‍♂️ What's your weight in kilograms?", _weightController),
+                    _buildInputField("📏 Your height in meters?", _heightController),
+                    _buildInputField("🎂 How old are you?", _ageController),
                     SizedBox(height: 12),
-                    _buildInputField("Weight (kg)", _weightController),
-                    _buildInputField("Height (m)", _heightController),
-                    _buildInputField("Age (years)", _ageController),
+                    DropdownButtonFormField<String>(
+                      value: _activityLevel,
+                      items: ["Sedentary", "Moderate", "Active"]
+                          .map((level) => DropdownMenuItem(value: level, child: Text(level)))
+                          .toList(),
+                      onChanged: (value) => setState(() => _activityLevel = value!),
+                      decoration: InputDecoration(
+                        labelText: "🏃 Activity Level",
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    SizedBox(height: 12),
+                    DropdownButtonFormField<String>(
+                      value: _dietType,
+                      items: ["Balanced", "High Protein", "Low Carb", "Vegetarian", "Vegan"]
+                          .map((diet) => DropdownMenuItem(value: diet, child: Text(diet)))
+                          .toList(),
+                      onChanged: (value) => setState(() => _dietType = value!),
+                      decoration: InputDecoration(
+                        labelText: "🥗 Diet Type",
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    SizedBox(height: 12),
+                    Text("🚰 Water Intake: ${_waterIntake.toStringAsFixed(1)} L"),
+                    Slider(
+                      min: 0.5,
+                      max: 5.0,
+                      divisions: 9,
+                      value: _waterIntake,
+                      label: "${_waterIntake.toStringAsFixed(1)} L",
+                      onChanged: (value) => setState(() => _waterIntake = value),
+                    ),
+                    SizedBox(height: 12),
+                    Text("🛌 Sleep Duration: ${_sleepHours.toStringAsFixed(1)} hrs"),
+                    Slider(
+                      min: 3,
+                      max: 12,
+                      divisions: 9,
+                      value: _sleepHours,
+                      label: "${_sleepHours.toStringAsFixed(1)} hrs",
+                      onChanged: (value) => setState(() => _sleepHours = value),
+                    ),
                     SizedBox(height: 20),
                     ElevatedButton(
                       onPressed: _calculateHealthMetrics,
-                      child: Text("Calculate BMI & Ideal Weight"),
-                      style: ElevatedButton.styleFrom(backgroundColor: Colors.green.shade600),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.teal.shade400,
+                        foregroundColor: Colors.white,
+                        padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Text("Show My Health Stats"),
                     ),
                   ],
                 ),
               ),
             ),
             SizedBox(height: 20),
-
-            // BMI and Ideal Weight Display
             if (_bmi > 0)
               Card(
                 elevation: 4,
-                color: Colors.green.shade100,
+                color: Colors.white,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 child: Padding(
                   padding: const EdgeInsets.all(20.0),
                   child: Column(
                     children: [
-                      Text("Your Health Metrics", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                      Text("📋 Here's how you're doing!",
+                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                       SizedBox(height: 12),
-                      Text("BMI: ${_bmi.toStringAsFixed(2)}", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                      Text("BMI: ${_bmi.toStringAsFixed(2)}",
+                          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.teal.shade700)),
                       SizedBox(height: 12),
-                      Text("Ideal Weight: ${_idealWeight.toStringAsFixed(2)} kg", style: TextStyle(fontSize: 18)),
+                      Text("Ideal Weight: ${_idealWeight.toStringAsFixed(2)} kg",
+                          style: TextStyle(fontSize: 18, color: Colors.black87)),
                       SizedBox(height: 12),
                       Text(
                         _bmi < 18.5
-                            ? "Underweight"
+                            ? "You're underweight. Let's work on gaining healthy mass. 💪"
                             : _bmi >= 25
-                                ? "Overweight"
-                                : "Normal Weight",
-                        style: TextStyle(fontSize: 18, color: _bmi < 18.5 || _bmi >= 25 ? Colors.red : Colors.green),
+                                ? "You’re in the overweight range. Consider more movement and balanced meals. 🥗🏃"
+                                : "Perfect! You're in a healthy range. Keep shining! ✨",
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: _bmi < 18.5 || _bmi >= 25 ? Colors.redAccent : Colors.green.shade600,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
                     ],
                   ),
                 ),
               ),
             SizedBox(height: 20),
-
-            // BMI Progress Chart
-            Text("Your BMI Progress", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            SizedBox(height: 12),
-            if (_bmiHistory.isNotEmpty)
+            if (_bmiHistory.isNotEmpty) ...[
+              Text("📈 Your BMI Progress", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              SizedBox(height: 12),
               Container(
                 height: 300,
+                decoration: BoxDecoration(
+                  color: Colors.teal.shade50,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                padding: EdgeInsets.all(12),
                 child: LineChart(_generateChartData()),
               ),
-            SizedBox(height: 20),
-
-            // Recommendation Section
+            ],
+            SizedBox(height: 30),
             Card(
               elevation: 4,
-              color: Colors.green.shade100,
+              color: Colors.teal.shade50,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               child: Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: Column(
                   children: [
-                    Text("Health Recommendations", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                    Text("🧠 Smart Tips For You", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                     SizedBox(height: 12),
                     Text(
-                      _bmi < 18.5
-                          ? "You are underweight. Consider eating more nutritious food and gain some weight."
-                          : _bmi >= 25
-                              ? "You are overweight. Regular exercise and a balanced diet can help."
-                              : "Your weight is in the normal range. Keep up the good work and stay healthy!",
-                      style: TextStyle(fontSize: 16, color: Colors.blue.shade700),
+                      _getLifestyleTip(),
+                      style: TextStyle(fontSize: 16),
                       textAlign: TextAlign.center,
                     ),
                   ],
@@ -157,19 +272,18 @@ class _HealthAnalysisPageState extends State<HealthAnalysisPage> {
     );
   }
 
-  // Input Field Widget
   Widget _buildInputField(String label, TextEditingController controller) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: TextField(
         controller: controller,
-        keyboardType: TextInputType.number,
+        keyboardType: TextInputType.numberWithOptions(decimal: true),
         decoration: InputDecoration(
           labelText: label,
           border: OutlineInputBorder(),
+          prefixIcon: Icon(Icons.fitness_center),
         ),
       ),
     );
   }
 }
-

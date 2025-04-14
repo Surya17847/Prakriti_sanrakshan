@@ -1,3 +1,15 @@
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        // Update Gradle Plugin version to match your Flutter setup
+        classpath 'com.android.tools.build:gradle:7.4.0' // Adjust this based on your setup
+        // Add other classpaths if required by your plugins
+    }
+}
+
 allprojects {
     repositories {
         google()

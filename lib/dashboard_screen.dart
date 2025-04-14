@@ -1,7 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:prakriti_svanrakshan/AQIMapScreen.dart';
 import 'package:prakriti_svanrakshan/CarbonFootprintPage.dart';
 import 'package:prakriti_svanrakshan/HealthAnalysisPage.dart';
+import 'package:prakriti_svanrakshan/ImageAnalysisPage.dart';
 import 'package:prakriti_svanrakshan/ProfilePage%20.dart';
 import 'package:prakriti_svanrakshan/TreesPlantedPage.dart';
 import 'package:prakriti_svanrakshan/news_api_service.dart';
@@ -9,7 +13,24 @@ import 'package:prakriti_svanrakshan/news_article.dart';
 import 'package:prakriti_svanrakshan/trees_data.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends StatefulWidget {
+  @override
+  _DashboardScreenState createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  File? _imageFile;
+  final ImagePicker _picker = ImagePicker();
+
+  Future<void> _pickImage() async {
+    final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _imageFile = File(pickedFile.path);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,16 +48,13 @@ class DashboardScreen extends StatelessWidget {
           ),
           SizedBox(width: 10),
         ],
-        
       ),
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
             DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.green,
-              ),
+              decoration: BoxDecoration(color: Colors.green),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -45,47 +63,30 @@ class DashboardScreen extends StatelessWidget {
                     radius: 30,
                   ),
                   SizedBox(height: 10),
-                  Text(
-                    'Gaurav Gupta',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                    ),
-                  ),
+                  Text('Gaurav Gupta', style: TextStyle(color: Colors.white, fontSize: 18)),
                 ],
               ),
             ),
             ListTile(
               leading: Icon(Icons.home),
               title: Text('Home'),
-              onTap: () {
-                Navigator.pop(context);
-              },
+              onTap: () => Navigator.pop(context),
             ),
             ListTile(
               leading: Icon(Icons.people),
               title: Text('Profile'),
-              onTap: () {
-                  Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => ProfilePage()),
-                );              },
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ProfilePage())),
             ),
             ListTile(
               leading: Icon(Icons.map),
               title: Text('Map'),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => AQIMapScreen()),
-                );
-              },
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => AQIMapScreen())),
             ),
             ListTile(
               leading: Icon(Icons.logout),
               title: Text('Logout'),
               onTap: () {
-                // Logout logic
+                // Add logout logic
               },
             ),
           ],
@@ -93,45 +94,35 @@ class DashboardScreen extends StatelessWidget {
       ),
       body: SingleChildScrollView(
         child: Column(
-          
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // News Section
             Padding(
-  padding: EdgeInsets.all(16.0),
-  child: Text("Latest Environmental News",
-      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-),
-Container(
-  height: 220,
-  child: FutureBuilder<List<NewsArticle>>(
-    
-future: (() {
-    print("Calling fetchNewsArticles()");
-    return NewsApiService().fetchNewsArticles();
-  })(),    builder: (context, snapshot) {
-      if (snapshot.connectionState == ConnectionState.waiting) {
-        return Center(child: CircularProgressIndicator());
-      } else if (snapshot.hasError) {
-        return Center(child: Text('Failed to load news'));
-      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-        return Center(child: Text('No news found'));
-      } else {
-        final articles = snapshot.data!;
-        return ListView.builder(
-          scrollDirection: Axis.horizontal,
-          itemCount: articles.length,
-          itemBuilder: (context, index) {
-            final article = articles[index];
-            return _buildNewsCard(article);
-          },
-        );
-      }
-    },
-  ),
-),
-
-
+              padding: EdgeInsets.all(16.0),
+              child: Text("Latest Environmental News", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            ),
+            Container(
+              height: 220,
+              child: FutureBuilder<List<NewsArticle>>(
+                future: NewsApiService().fetchNewsArticles(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return Center(child: Text('Failed to load news'));
+                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return Center(child: Text('No news found'));
+                  } else {
+                    final articles = snapshot.data!;
+                    return ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: articles.length,
+                      itemBuilder: (context, index) => _buildNewsCard(articles[index]),
+                    );
+                  }
+                },
+              ),
+            ),
 
             // Personal Contribution Section
             Padding(
@@ -144,72 +135,36 @@ future: (() {
                 scrollDirection: Axis.horizontal,
                 padding: EdgeInsets.symmetric(horizontal: 12),
                 children: [
-                 ValueListenableBuilder<int>(
-  valueListenable: TreeData.totalTreesPlanted,
-  builder: (context, value, _) {
-    return _buildContributionCard(
-      context: context,
-      icon: Icons.park,
-      title: "Trees Planted",
-      value: value.toString(),
-      color: Colors.green.shade100,
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => TreesPlantedPage()),
-        );
-      },
-    );
-  },
-),
+                  ValueListenableBuilder<int>(
+                    valueListenable: TreeData.totalTreesPlanted,
+                    builder: (context, value, _) {
+                      return _buildContributionCard(
+                        context: context,
+                        icon: Icons.park,
+                        title: "Trees Planted",
+                        value: value.toString(),
+                        color: Colors.green.shade100,
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => TreesPlantedPage())),
+                      );
+                    },
+                  ),
                   _buildContributionCard(
                     context: context,
                     icon: Icons.eco,
                     title: "Carbon Footprint",
                     value: "Check",
                     color: Colors.teal.shade100,
-                    onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => CarbonFootprintPage()));
-                    },
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => CarbonFootprintPage())),
                   ),
                   _buildContributionCard(
                     context: context,
                     icon: Icons.monitor_heart,
                     title: "Health Analysis",
-                    value: "5 hrs",
+                    value: "Check",
                     color: Colors.orange.shade100,
-                    onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => HealthAnalysisPage()));
-                    },
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => HealthAnalysisPage())),
                   ),
                 ],
-              ),
-            ),
-
-            // Live AQI Map Section
-            Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Text("Live AQI Map", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            ),
-            GestureDetector(
-              onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => AQIMapScreen()));
-              },
-              child: Container(
-                height: 200,
-                color: Colors.grey[300],
-                margin: EdgeInsets.symmetric(horizontal: 16),
-                child: Center(
-                  child: Text(
-                    "Live AQI Map Here",
-                    style: TextStyle(
-                      color: Colors.blueAccent,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      decoration: TextDecoration.underline,
-                    ),
-                  ),
-                ),
               ),
             ),
 
@@ -218,43 +173,134 @@ future: (() {
               padding: EdgeInsets.all(16.0),
               child: Text("Image Analysis", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             ),
-            Card(
-              margin: EdgeInsets.symmetric(horizontal: 16),
-              child: ListTile(
-                leading: Icon(Icons.image, size: 40),
-                title: Text("Upload Image"),
-                trailing: ElevatedButton(
-                  onPressed: () {
-                    // Implement Image Analysis Navigation
-                  },
-                  child: Text("Upload"),
-                ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Card(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    elevation: 4,
+                    child: Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Row(
+                        children: [
+                          Icon(Icons.image, size: 40, color: Colors.green),
+                          SizedBox(width: 16),
+                          Expanded(child: Text("Upload an image for analysis", style: TextStyle(fontSize: 16))),
+                          ElevatedButton(
+                            onPressed: _pickImage,
+                            child: Text("Upload"),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  if (_imageFile != null)
+  GestureDetector(
+    onTap: () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ImageAnalysisPage(imageFile: _imageFile!),
+        ),
+      );
+    },
+    child: Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 4,
+      child: Padding(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("Selected Image (Tap to Analyze):", style: TextStyle(fontWeight: FontWeight.bold)),
+            SizedBox(height: 10),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.file(
+                _imageFile!,
+                height: 200,
+                width: double.infinity,
+                fit: BoxFit.cover,
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  ),
+
+                ],
               ),
             ),
 
-            // Live AI Analysis
+            // Live AI Analysis Button
             Padding(
               padding: EdgeInsets.all(16.0),
               child: Text("Live AI Analysis", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             ),
-            Center(
-              child: ElevatedButton.icon(
+            Padding(
+  padding: EdgeInsets.symmetric(horizontal: 16),
+  child: Container(
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(16),
+      color: Colors.grey.shade200,
+      boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 6)],
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+          child: Container(
+            height: 200,
+            color: Colors.black12,
+            child: Center(
+              child: Icon(Icons.camera_alt, size: 60, color: Colors.grey),
+            ),
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Coming Soon: Real-Time AR Analysis",
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              ),
+              SizedBox(height: 8),
+              Text(
+                "Use your camera to detect environmental waste, classify pollution types, and get actionable insights instantly with AR overlays.",
+                style: TextStyle(fontSize: 14, color: Colors.black87),
+              ),
+              SizedBox(height: 12),
+              ElevatedButton.icon(
                 onPressed: () {
-                  // Implement Camera Navigation
+                  // Placeholder for future AR feature
                 },
                 icon: Icon(Icons.camera),
                 label: Text("Open Camera"),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green.shade600,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                ),
               ),
-            ),
-
-            SizedBox(height: 20),
+            ],
+          ),
+        ),
+      ],
+    ),
+  ),
+),         SizedBox(height: 20),
           ],
         ),
       ),
     );
   }
-
-
 
   Widget _buildContributionCard({
     required BuildContext context,
@@ -274,11 +320,7 @@ future: (() {
           color: color,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 6,
-              offset: Offset(0, 3),
-            ),
+            BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 3)),
           ],
         ),
         child: Column(
@@ -294,61 +336,54 @@ future: (() {
       ),
     );
   }
+
   Widget _buildNewsCard(NewsArticle article) {
-  return Card(
-    margin: EdgeInsets.symmetric(horizontal: 8),
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-    elevation: 5,
-    child: Container(
-      width: 240,
-      padding: EdgeInsets.all(12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Image
-          if (article.urlToImage.isNotEmpty)
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.network(
-                article.urlToImage,
-                height: 100,
-                width: double.infinity,
-                fit: BoxFit.cover,
+    return Card(
+      margin: EdgeInsets.symmetric(horizontal: 8),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 5,
+      child: Container(
+        width: 240,
+        padding: EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (article.urlToImage.isNotEmpty)
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.network(
+                  article.urlToImage,
+                  height: 100,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            SizedBox(height: 8),
+            GestureDetector(
+              onTap: () async {
+                final uri = Uri.parse(article.url);
+                if (await canLaunchUrl(uri)) {
+                  await launchUrl(uri);
+                }
+              },
+              child: Text(
+                article.title,
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
-          SizedBox(height: 8),
-
-          // Clickable Title
-          GestureDetector(
-            onTap: () async {
-              final uri = Uri.parse(article.url);
-              if (await canLaunchUrl(uri)) {
-                await launchUrl(uri);
-              }
-            },
-            child: Text(
-              article.title,
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
+            SizedBox(height: 4),
+            Flexible(
+              child: Text(
+                article.description,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
-          ),
-          SizedBox(height: 4),
-
-          // Description with flexible space to avoid overflow
-          Flexible(
-            child: Text(
-              article.description,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
-  );
-}
-
-
-
+    );
+  }
 }

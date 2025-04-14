@@ -6,6 +6,7 @@ import 'package:prakriti_svanrakshan/ProfilePage%20.dart';
 import 'package:prakriti_svanrakshan/TreesPlantedPage.dart';
 import 'package:prakriti_svanrakshan/news_api_service.dart';
 import 'package:prakriti_svanrakshan/news_article.dart';
+import 'package:prakriti_svanrakshan/trees_data.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class DashboardScreen extends StatelessWidget {
@@ -143,16 +144,24 @@ future: (() {
                 scrollDirection: Axis.horizontal,
                 padding: EdgeInsets.symmetric(horizontal: 12),
                 children: [
-                  _buildContributionCard(
-                    context: context,
-                    icon: Icons.park,
-                    title: "Trees Planted",
-                    value: "10",
-                    color: Colors.green.shade100,
-                    onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => TreesPlantedPage()));
-                    },
-                  ),
+                 ValueListenableBuilder<int>(
+  valueListenable: TreeData.totalTreesPlanted,
+  builder: (context, value, _) {
+    return _buildContributionCard(
+      context: context,
+      icon: Icons.park,
+      title: "Trees Planted",
+      value: value.toString(),
+      color: Colors.green.shade100,
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => TreesPlantedPage()),
+        );
+      },
+    );
+  },
+),
                   _buildContributionCard(
                     context: context,
                     icon: Icons.eco,
